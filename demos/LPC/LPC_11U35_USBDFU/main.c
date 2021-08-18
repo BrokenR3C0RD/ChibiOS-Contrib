@@ -19,32 +19,40 @@
 #include "usbdfu.h"
 #include <string.h>
 
-#define CM_RESET_VECTOR_OFFSET    4
+#define CM_RESET_VECTOR_OFFSET 4
 
-static void jump_to_application(void) __attribute__ ((noreturn));
+static void jump_to_application(void) __attribute__((noreturn));
 
-static void jump_to_application(void) {
+static void jump_to_application(void)
+{
 
-    /* Use the application's vector table */
-    // Copy Vector Table to RAM_START(0x10000000)
-    memcpy((void*) 0x10000000, (void*)APP_BASE, 512);
-    // Switch Vector Table
-    LPC_SYSCON->SYSMEMREMAP = 0x1; // User RAM mode
+  /* Use the application's vector table */
+  // Copy Vector Table to RAM_START(0x10000000)
+  memcpy((void *)0x10000000, (void *)APP_BASE, 512);
+  // Switch Vector Table
+  LPC_SYSCON->SYSMEMREMAP = 0x1; // User RAM mode
 
-    /* Initialize the application's stack pointer */
-    __set_MSP(*((volatile uint32_t*)(APP_BASE)));
-    uint32_t target_start = *((volatile uint32_t*)(APP_BASE + CM_RESET_VECTOR_OFFSET));
-    uint32_t initial_sp = *((volatile uint32_t*)(APP_BASE));
-    /* Jump to the application entry point */
-    __ASM volatile ("mov sp, %0\n" "bx %1" : : "r" (initial_sp), "r" (target_start) : );
+  /* Initialize the application's stack pointer */
+  __set_MSP(*((volatile uint32_t *)(APP_BASE)));
+  uint32_t target_start = *((volatile uint32_t *)(APP_BASE + CM_RESET_VECTOR_OFFSET));
+  uint32_t initial_sp = *((volatile uint32_t *)(APP_BASE));
+  /* Jump to the application entry point */
+  __ASM volatile("mov sp, %0\n"
+                 "bx %1"
+                 :
+                 : "r"(initial_sp), "r"(target_start)
+                 :);
 
-    while (1) {}
+  while (1)
+  {
+  }
 }
 
 /*
  * Application entry point.
  */
-int main(void) {
+int main(void)
+{
   halInit();
   /*
    * System initializations.
@@ -57,12 +65,13 @@ int main(void) {
    * Normal main() thread activity, in this demo it does nothing except
    * increasing the minutes counter.
    */
-  usbDisconnectBus(&USBD1);
+  //usbDisconnectBus(&USBD1);
   chThdSleepMilliseconds(1500);
   usbStart(&USBD1, &usbcfg);
-  usbConnectBus(&USBD1);
+  //usbConnectBus(&USBD1);
 
-  while(1){
+  while (1)
+  {
     chThdSleepSeconds(600);
   }
 }
